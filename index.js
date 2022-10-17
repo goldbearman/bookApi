@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { v4: uuid } = require('uuid')
+const errorMiddleware = require('./middleware/error');
 
 const indexRouter = require('./routes/index');
 const apiBooksRouter = require('./routes/apiBooks');
@@ -10,6 +10,8 @@ app.use(express.json());  //говорим что мы хотим получат
 
 app.use('/', indexRouter);
 app.use('/api', apiBooksRouter);
+
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT);

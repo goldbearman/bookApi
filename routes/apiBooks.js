@@ -1,9 +1,10 @@
 const exptress = require('express');
 const router = exptress.Router();
 const { v4: uuid } = require('uuid')
+const fileMulter = require('../middleware/bookfile')
 
 class Book {
-  constructor(title = "", description = "", authors = "", favorite = "", fileCover = "", fileName = "",fileBook = "", id = uuid()) {
+  constructor(title = "", description = "", authors = "", favorite = "", fileCover = "", fileName = "", fileBook = "", id = uuid()) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -17,27 +18,21 @@ class Book {
 
 const stor = {
   books: [
-    new Book('Михаил Булгаков - Мастер и Маргарита','Это вечная книга, прославившая Булгакова, которого не имеет определённого жанра.'),
-    new Book('Антуан де Сент-Экзюпери - Маленький принц','«Маленький принц» актуален для любого возраста.'),
-    new Book('Лев Толстой - Война и мир','Это вечная книга, прославившая Булгакова, которого не имеет определённого жанра.'),
+    new Book('Михаил Булгаков - Мастер и Маргарита', 'Это вечная книга, прославившая Булгакова, которого не имеет определённого жанра.'),
+    new Book('Антуан де Сент-Экзюпери - Маленький принц', '«Маленький принц» актуален для любого возраста.'),
+    new Book('Лев Толстой - Война и мир', 'Это вечная книга, прославившая Булгакова, которого не имеет определённого жанра.'),
   ],
 };
 
-// router.get('/', (req, res) => {
-//   const {url} = req;
-//   console.log(url);
-//   res.json({url});
-// });
-
 router.get('/books', (req, res) => {
-  const {books} = stor;
-  console.log('req.params',req.params);
+  const { books } = stor;
+  console.log('req.params', req.params);
   res.json(books)
 });
 
 router.get('/books/:id', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
+  const { books } = stor;
+  const { id } = req.params;
   console.log(req.params);
   const idx = books.findIndex(el => el.id === id)
 
@@ -57,8 +52,8 @@ router.post('/user/login', (req, res) => {
 });
 
 router.post('/books', (req, res) => {
-  const {books} = stor;
-  const {title, description} = req.body;
+  const { books } = stor;
+  const { title, description } = req.body;
 
   const newBook = new Book(title, description);
   books.push(newBook);
@@ -67,10 +62,21 @@ router.post('/books', (req, res) => {
   res.json(newBook);
 });
 
+router.post('/books/download',
+  fileMulter.single('cover-img'),    //(ожидаемое имя файла)
+  (req, res) => {
+    if (req.file) {
+      const { path } = req.file
+      res.json({ path })
+    }
+    res.json()
+  })
+
+
 router.put('/books/:id', (req, res) => {
-  const {books} = stor;
-  const {title, description} = req.body;
-  const {id} = req.params;
+  const { books } = stor;
+  const { title, description } = req.body;
+  const { id } = req.params;
   const idx = books.findIndex(el => el.id === id);
 
   if (idx !== -1) {
@@ -88,8 +94,8 @@ router.put('/books/:id', (req, res) => {
 });
 
 router.delete('/books/:id', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
+  const { books } = stor;
+  const { id } = req.params;
   const idx = books.findIndex(el => el.id === id);
 
   if (idx !== -1) {
