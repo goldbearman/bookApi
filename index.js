@@ -9,6 +9,7 @@ const app = express();
 app.use(express.json());
 
 app.use('/api/book/id', express.static(__dirname+'/public/download/12.txt'));
+
 app.use('/', indexRouter);
 app.use('/api', apiBooksRouter);
 
