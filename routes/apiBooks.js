@@ -74,29 +74,20 @@ router.post('/books', (req, res) => {
     res.json(newBook);
 });
 
-
-
 router.post('/books/download',
     fileMulter.single('bookFile'),    //(ожидаемое имя файла)
-    // cpUpload,
     (req, res) => {
         if (req.file) {
             const {path} = req.file
-            console.log(path);
             res.json({path})
             if (req.body.bookFile) {
-                console.log(req.body);
                 const newBook = JSON.parse(req.body.bookFile);
                 newBook.fileBook = path;
-                console.log(JSON.parse(req.body.bookFile));
                 stor.books.push(newBook);
             }
         }
         res.json()
-    })
-
-
-
+    });
 
 router.put('/books/:id', (req, res) => {
     const {books} = stor;
