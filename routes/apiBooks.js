@@ -2,6 +2,7 @@ const exptress = require('express');
 const router = exptress.Router();
 const {v4: uuid} = require('uuid')
 const fileMulter = require('../middleware/bookfile')
+const express = require("express");
 
 class Book {
     constructor(title = "", description = "", authors = "", favorite = "", fileCover = "", fileName = "", fileBook = "", id = uuid()) {
@@ -73,6 +74,8 @@ router.post('/books', (req, res) => {
     res.json(newBook);
 });
 
+
+
 router.post('/books/download',
     fileMulter.single('bookFile'),    //(ожидаемое имя файла)
     // cpUpload,
@@ -91,6 +94,9 @@ router.post('/books/download',
         }
         res.json()
     })
+
+
+
 
 router.put('/books/:id', (req, res) => {
     const {books} = stor;
