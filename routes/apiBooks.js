@@ -1,8 +1,10 @@
 const exptress = require('express');
+const path = require('path');
+
 const router = exptress.Router();
-const { v4: uuid } = require('uuid')
+const {v4: uuid} = require('uuid');
 const fileMulter = require('../middleware/bookfile')
-const express = require("express");
+
 
 class Book {
   constructor(title = "", description = "", authors = "", favorite = "", fileCover = "", fileName = "", fileBook = "", id = uuid()) {
@@ -28,6 +30,8 @@ const bookExample = {
   fileBook: "string"
 };
 
+
+
 const stor = {
   books: [
     new Book('Михаил Булгаков - Мастер и Маргарита', 'Это вечная книга, прославившая Булгакова, которого не имеет определённого жанра.'),
@@ -37,14 +41,14 @@ const stor = {
 };
 
 router.get('/books', (req, res) => {
-  const { books } = stor;
+  const {books} = stor;
   console.log('req.params', req.params);
   res.json(books)
 });
 
 router.get('/books/:id', (req, res) => {
-  const { books } = stor;
-  const { id } = req.params;
+  const {books} = stor;
+  const {id} = req.params;
   console.log(req.params);
   const idx = books.findIndex(el => el.id === id)
 
@@ -57,32 +61,15 @@ router.get('/books/:id', (req, res) => {
 
 });
 
-// app.use('/api/book/id', express.static(__dirname+'/public/download/12.txt'));
-router.get('/book/:id/download', (req, res) => {
-  console.log(req.params);
-  const { books } = stor;
-  const { id } = req.params;
-  const book = books.find(el => el.id === id);
-  console.log(book);
-  if (book) {
-    console.log(`${book.fileBook}`);
-    const file = `${book.fileBook}`;
-    res.download(file);
-  } else {
-    res.status(404);
-    res.json('404 | страница не найдена')
-  }
-})
-
 router.post('/user/login', (req, res) => {
-  const regObj = { id: 1, mail: "test@mail.ru" };
+  const regObj = {id: 1, mail: "test@mail.ru"};
   res.status(201);
   res.json(regObj);
 });
 
 router.post('/books', (req, res) => {
-  const { books } = stor;
-  const { title, description } = req.body;
+  const {books} = stor;
+  const {title, description} = req.body;
 
   const newBook = new Book(title, description);
   books.push(newBook);
@@ -91,28 +78,46 @@ router.post('/books', (req, res) => {
   res.json(newBook);
 });
 
+router.get('/book/:id/download', (req, res) => {
+  console.log(req.params);
+  const {books} = stor;
+  const {id} = req.params;
+  const book = books.find(el => el.id === id);
+  console.log(book);
+  if (book) {
+    const file = path.join(__dirname, '..', book.fileBook);
+    res.download(file);
+  } else {
+    res.json('Запрашиваемый ресурс не найден!')
+  }
+});
+
 router.post('/books/download',
   fileMulter.single('bookFile'),    //(ожидаемое имя файла)
   (req, res) => {
     console.log(req.file)
     if (req.file) {
-      const { path } = req.file
-      res.json({ path })
-      if (req.body.bookFile) {
+      const {path} = req.file
+      console.log(req.body);
+      if (typeof req.body.bookFile === "object") {
         const newBook = JSON.parse(req.body.bookFile);
         newBook.fileBook = path;
         newBook.id = uuid();
-        stor.books.push(newBook);
-      }
-    }
+        if(!keyComparison(bookExample,newBook)){
+          res.json('Не хватает данных в книге!');
+        }else {
+          stor.books.push(newBook);
+          res.json({path})
+        }
+      } else res.json('Неверная структура данных!');
+    } else res.json('Нет файла книги!');
     res.json()
   });
 
-
 router.put('/books/:id', (req, res) => {
-  const { books } = stor;
-  const { title, description } = req.body;
-  const { id } = req.params;
+  const {books} = stor;
+  const {title, description} = req.body;
+  const {id} = req.params;
   const idx = books.findIndex(el => el.id === id);
 
   if (idx !== -1) {
@@ -130,8 +135,8 @@ router.put('/books/:id', (req, res) => {
 });
 
 router.delete('/books/:id', (req, res) => {
-  const { books } = stor;
-  const { id } = req.params;
+  const {books} = stor;
+  const {id} = req.params;
   const idx = books.findIndex(el => el.id === id);
 
   if (idx !== -1) {
@@ -142,5 +147,13 @@ router.delete('/books/:id', (req, res) => {
     res.json('404 | страница не найдена')
   }
 });
+
+//Functions
+function keyComparison(bookExample,book) {
+  return Object.keys(bookExample).every(el => {
+    console.log(el);
+    return book[el] !== undefined
+  });
+}
 
 module.exports = router;
