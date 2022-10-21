@@ -19,18 +19,6 @@ class Book {
   }
 }
 
-const bookExample = {
-  id: "string",
-  title: "string",
-  description: "string",
-  authors: "string",
-  favorite: "string",
-  fileCover: "string",
-  fileName: "string",
-  fileBook: "string"
-};
-
-
 const stor = {
   books: [
     new Book('Михаил Булгаков - Мастер и Маргарита', 'Это вечная книга, прославившая Булгакова, которого не имеет определённого жанра.'),
@@ -41,14 +29,12 @@ const stor = {
 
 router.get('/books', (req, res) => {
   const { books } = stor;
-  console.log('req.params', req.params);
   res.json(books)
 });
 
 router.get('/books/:id', (req, res) => {
   const { books } = stor;
   const { id } = req.params;
-  console.log(req.params);
   const idx = books.findIndex(el => el.id === id)
 
   if (idx !== -1) {
@@ -78,11 +64,9 @@ router.post('/books', (req, res) => {
 });
 
 router.get('/book/:id/download', (req, res) => {
-  console.log(req.params);
   const { books } = stor;
   const { id } = req.params;
   const book = books.find(el => el.id === id);
-  console.log(book);
   if (book) {
     const file = path.join(__dirname, '..', book.fileBook);
     res.download(file);
@@ -93,30 +77,30 @@ router.get('/book/:id/download', (req, res) => {
 
 router.post('/books/download',
   fileMulter.single('bookFile'),    //(ожидаемое имя файла)
-  (req, res) => {
+  (req, res, next) => {
     if (req.file) {
       const { path } = req.file
       if (req.body.bookFile) {
         try {
           const newBook = JSON.parse(req.body.bookFile);
-          console.log(newBook);
           newBook.fileBook = path;
           newBook.id = uuid();
-          if (!keyComparison(bookExample, newBook)) {
+          if (!keyComparison(new Book(), newBook)) {         //Проверка наличия всех полей
             res.json('Не хватает данных в книге!');
+          } else {
+            const isNewBook = stor.books.every(el => el.title !== newBook.title && el.authors !== newBook.authors);
+            if (isNewBook) {                                  //Проверка дублирующей книги
+              stor.books.push(newBook);
+              res.json({ path })
+            }else res.json('Данная книга уже есть!');
           }
         } catch (e) {
           res.json('Неверная структура данных!');
         }
-      } else {
-        stor.books.push(newBook);
-        res.json({ path })
-      }
-    } else res.json('Неверная структура данных!');
-  }else res.json('Нет файла книги!');
-res.json()
-})
-;
+      } else res.json('Неверная структура данных!');
+    } else res.json('Нет файла книги!');
+    res.json()
+  });
 
 router.put('/books/:id', (req, res) => {
   const { books } = stor;
@@ -155,8 +139,7 @@ router.delete('/books/:id', (req, res) => {
 //Functions
 function keyComparison(bookExample, book) {
   return Object.keys(bookExample).every(el => {
-    console.log(el);
-    return book[el] !== undefined
+    return book[el] !== undefined;
   });
 }
 
