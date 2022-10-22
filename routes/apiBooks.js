@@ -69,7 +69,7 @@ router.get('/book/:id/download', (req, res) => {
   const book = books.find(el => el.id === id);
   if (book) {
     const file = path.join(__dirname, '..', book.fileBook);
-    res.download(file);
+    res.download(file,book.fileName);
   } else {
     res.json('Запрашиваемый ресурс не найден!')
   }
