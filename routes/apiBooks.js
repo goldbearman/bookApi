@@ -100,6 +100,7 @@ router.post('/books/delete/:id', (req, res) => {
   const {id} = req.params;
   const idx = books.findIndex(el => el.id === id)
 
+  console.log('post')
   if (idx !== -1) {
     books.slice(idx, 1);
     res.redirect('/books')
