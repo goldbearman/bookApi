@@ -2,7 +2,7 @@ const exptress = require('express');
 const path = require('path');
 
 const router = exptress.Router();
-const {v4: uuid} = require('uuid');
+const { v4: uuid } = require('uuid');
 const fileMulter = require('../middleware/bookfile')
 
 
@@ -28,17 +28,17 @@ const stor = {
 };
 
 router.get('/', (req, res) => {
-  const {books} = stor;
-  res.render('book/index', {title: 'Books', books: books});
+  const { books } = stor;
+  res.render('book/index', { title: 'Books', books: books });
 });
 
 router.get('/create', (req, res) => {
-  res.render('book/create', {title: 'Create book', books: {}});
+  res.render('book/create', { title: 'Create book', book: {} });
 });
 
 router.post('/create', (req, res) => {
-  const {books} = stor;
-  const {title, description} = req.body;
+  const { books } = stor;
+  const { title, description } = req.body;
   const book = new Book(title, description);
   books.push(book);
 
@@ -57,69 +57,72 @@ router.post('/create', (req, res) => {
 // });
 
 router.get('/:id', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
+  const { books } = stor;
+  const { id } = req.params;
   const idx = books.findIndex(el => el.id === id)
 
   if (idx !== -1) {
-    res.render('book/view', {title: 'Book', book: books[idx]});
+    res.render('book/view', { title: 'Book', book: books[idx] });
   } else {
     res.redirect('/404')
   }
 });
 
 router.get('/update/:id', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
+  const { books } = stor;
+  const { id } = req.params;
   const idx = books.findIndex(el => el.id === id)
 
   if (idx !== -1) {
-    res.render('book/update', {title: 'Update book', book: books[idx]});
+    res.render('book/update', { title: 'Update book', book: books[idx] });
   } else {
     res.redirect('/404')
   }
 });
 
 router.post('/update/:id', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
-  const {title, description} = req.body;
+  const { books } = stor;
+  const { id } = req.params;
+  const { title, description } = req.body;
   const idx = books.findIndex(el => el.id === id)
 
+  console.log('update')
   if (idx !== -1) {
-    books[idx]={
-      ...books[idx],title, description,
+    books[idx] = {
+      ...books[idx], title, description,
     }
+    res.redirect(`/api/books/${id}`);
   } else {
     res.redirect('/404')
   }
 });
 
 router.post('/delete/:id', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
+  const { books } = stor;
+  const { id } = req.params;
   const idx = books.findIndex(el => el.id === id)
 
   console.log('post')
   if (idx !== -1) {
-    books.slice(idx, 1);
-    res.redirect('/books')
+    console.log('if')
+    books.splice(idx, 1);
+    res.redirect('/api/books')
   } else {
+    console.log('else')
     res.redirect('/404')
   }
 });
 
 router.post('/user/login', (req, res) => {
-  const regObj = {id: 1, mail: "test@mail.ru"};
+  const regObj = { id: 1, mail: "test@mail.ru" };
   res.status(201);
   res.json(regObj);
 });
 
 
-
 router.get('/:id/download', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
+  const { books } = stor;
+  const { id } = req.params;
   const book = books.find(el => el.id === id);
   if (book) {
     const file = path.join(__dirname, '..', book.fileBook);
@@ -131,9 +134,9 @@ router.get('/:id/download', (req, res) => {
 
 router.post('/download',
   fileMulter.single('bookFile'),    //(ожидаемое имя файла)
-  (req, res, next) => {
+  (req, res) => {
     if (req.file) {
-      const {path} = req.file
+      const { path } = req.file
       if (req.body.bookFile) {
         try {
           const newBook = JSON.parse(req.body.bookFile);
@@ -145,7 +148,7 @@ router.post('/download',
             const isNewBook = stor.books.every(el => el.title !== newBook.title && el.authors !== newBook.authors);
             if (isNewBook) {                                  //Проверка дублирующей книги
               stor.books.push(newBook);
-              res.json({path})
+              res.json({ path })
             } else res.json('Данная книга уже есть!');
           }
         } catch (e) {
@@ -157,9 +160,9 @@ router.post('/download',
   });
 
 router.put('/:id', (req, res) => {
-  const {books} = stor;
-  const {title, description} = req.body;
-  const {id} = req.params;
+  const { books } = stor;
+  const { title, description } = req.body;
+  const { id } = req.params;
   const idx = books.findIndex(el => el.id === id);
 
   if (idx !== -1) {
@@ -177,8 +180,8 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  const {books} = stor;
-  const {id} = req.params;
+  const { books } = stor;
+  const { id } = req.params;
   const idx = books.findIndex(el => el.id === id);
 
   if (idx !== -1) {
