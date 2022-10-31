@@ -13,24 +13,24 @@ Digest: sha256:608bba799613b1ebf754034ae008849ba51e88b23271412427b76d60ae0d0627
 Status: Downloaded newer image for node:15.14
 docker.io/library/node:15.14
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker run -it -d --name first_node -v %cd%:/var/first/data node:15.14
+docker run -it -d --name first_node -v %cd%:/var/first/data node:15.14
 fd0d779ec91f8ed473c87d1c68b61cfc5d95dab5362b29ad4f2d44686c345daa
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker run -it -d --name second_node -v %cd%:/var/second/data node:15.14
+docker run -it -d --name second_node -v %cd%:/var/second/data node:15.14
 35b659a435a328f437dc3f40e8f344d1fe6f865c6e449995d09be3eb98c650c2
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker exec -it first_node bash
+docker exec -it first_node bash
 root@fd0d779ec91f:/# cd /var/first/data
 root@fd0d779ec91f:/var/first/data# touch text.txt
 root@fd0d779ec91f:/var/first/data# echo "Hello World">/var/first/data/text.txt
 root@fd0d779ec91f:/var/first/data# exit
 exit
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker exec -it second_node bash
+docker exec -it second_node bash
 root@35b659a435a3:/# ls /var/second/data
 text.txt  text2.txt
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker exec -it second_node bash
+docker exec -it second_node bash
 root@35b659a435a3:/# ls /var/second/data
 text.txt  text2.txt
 root@35b659a435a3:/# cat /var/second/data/text.txt
@@ -40,15 +40,15 @@ Hi!
 root@35b659a435a3:/# exit
 exit
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker stop first_node second_node
+docker stop first_node second_node
 first_node
 second_node
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker rm first_node second_node
+docker rm first_node second_node
 first_node
 second_node
 
-C:\Users\fsabirov\Desktop\Обучение\bookApiNet\bookApi\data>docker images -a
+docker images -a
 REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
 node         15.14     3d3f41722daf   17 months ago   936MB
 
