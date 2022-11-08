@@ -42,19 +42,8 @@ router.post('/create', (req, res) => {
   const book = new Book(title, description);
   books.push(book);
 
-  res.redirect('/books');
+  res.redirect('/api/books');
 });
-
-// router.post('/books', (req, res) => {
-//   const {books} = stor;
-//   const {title, description} = req.body;
-//
-//   const newBook = new Book(title, description);
-//   books.push(newBook);
-//
-//   res.status(201);
-//   res.json(newBook);
-// });
 
 router.get('/:id', (req, res) => {
   const { books } = stor;
